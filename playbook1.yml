@@ -1,0 +1,54 @@
+- hosts: aws_ec2
+
+  tasks:
+    # Create a user
+    - name: Create a user
+      become: yes
+      user:
+        name: "app"
+        shell: "/bin/bash"
+        state: present
+
+    - name: add user to sudo group
+      when: inventory_hostname in groups['tag_Name_acit4640_ubuntu']
+      become: yes
+      user:
+        name: "app"
+        groups: "sudo"
+        append: yes
+
+    - name: Add user to wheel group
+      when: inventory_hostname in groups['tag_Name_acit4640_rhel']
+      become: yes
+      user:
+        name: "app"
+        groups: "wheel"
+        append: yes
+
+    - name: Copy .ssh directory
+      become: yes
+      copy:
+        src: "{{ ansible_env.HOME }}/.ssh"
+        dest: "/home/app"
+        owner: "app"
+        group: "app"
+        mode: "0755"
+        remote_src: yes
+
+    - name: Configure sshd
+      become: yes
+      lineinfile:
+        path: "/etc/ssh/sshd_config"
+        regex: "^(#)?{{item.key}}"
+        line: "{{item.key}} {{item.value}}"
+        state: present
+      loop:
+        - { key: "PermitRootLogin", value: "no" }
+        - { key: "PasswordAuthentication", value: "no" } 
+      register: ssh_config
+
+    - name: Restart ssh
+      service:
+        name: sshd
+        state: restarted
+      when: ssh_config.changed

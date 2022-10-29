@@ -1,0 +1,28 @@
+- hosts: aws_ec2
+
+  tasks:
+
+    - name: Install podman with dnf
+      when: inventory_hostname in groups['tag_Name_acit4640_rhel']
+      become: yes
+      dnf:
+        update_cache: yes
+        name: podman
+        state: present
+
+    - name: Install podman with apt
+      when: inventory_hostname in groups['tag_Name_acit4640_ubuntu']
+      become: yes
+      apt:
+        update_cache: yes
+        name: podman
+        state: present
+
+    - name: Run container
+      containers.podman.podman_container:
+        name: nginx
+        image: docker.io/library/nginx
+        state: started
+        ports:
+          - "8080:80"
+        
