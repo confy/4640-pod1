@@ -4,6 +4,8 @@ regions:
   - us-west-2
 
 strict: False
+filters:
+  instance-state-name: running
 keyed_groups:
   - prefix: tag
     key: tags

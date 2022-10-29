@@ -1,7 +1,7 @@
+---
 - hosts: aws_ec2
 
   tasks:
-
     - name: Install podman with dnf
       when: inventory_hostname in groups['tag_Name_acit4640_rhel']
       become: yes
@@ -25,4 +25,3 @@
         state: started
         ports:
           - "8080:80"
-        

@@ -1,3 +1,4 @@
+---
 - hosts: aws_ec2
 
   tasks:
@@ -44,7 +45,7 @@
         state: present
       loop:
         - { key: "PermitRootLogin", value: "no" }
-        - { key: "PasswordAuthentication", value: "no" } 
+        - { key: "PasswordAuthentication", value: "no" }
       register: ssh_config
 
     - name: Restart ssh
